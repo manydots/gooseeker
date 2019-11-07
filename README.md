@@ -1,4 +1,4 @@
-# music
+# 网易云音乐music（仅供学习使用）
 
 [music-preview](https://music.jeeas.cn/)
 
@@ -6,8 +6,12 @@
  
  npm run server
 
- https://github.com/manydots/NeteaseCloudMusicApi
+ 参考项目
 
+	https://github.com/sqaiyan/netmusic-node
+
+ 	https://github.com/Binaryify/NeteaseCloudMusicApi
+	
 
 ```
 
