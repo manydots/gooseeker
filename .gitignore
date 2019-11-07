@@ -1,0 +1,20 @@
+# Logs
+logs
+*.log
+*.zip
+.DS_Store
+node_modules/
+npm-debug.log
+dist
+/build
+package-lock.json
+# IDE/Editor data
+.idea
+#docz cache && app
+.docz
+#git
+.git
+public/uploads/
+.vscode
+imgs/
+content/

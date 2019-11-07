@@ -1,0 +1,34 @@
+{
+  "name": "gooseeker",
+  "version": "0.0.1",
+  "description": "gooseeker",
+  "scripts": {
+    "server": "node --trace-deprecation ./server.js",
+    "server:http": "set port=3033 && node --trace-deprecation ./server.js",
+    "server:linux": "export port=8088 && node --trace-deprecation ./server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "apicache": "^1.5.2",
+    "big-integer": "^1.6.47",
+    "crypto": "^1.0.1",
+    "ejs": "^2.7.1",
+    "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "node",
+    "gooseeker",
+    "koa",
+    "download"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:manydots/gooseeker.git"
+  },
+  "homepage": "https://github.com/manydots/gooseeker#readme",
+  "author": "mo.chen",
+  "license": "MIT"
+}
