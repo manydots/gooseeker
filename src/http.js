@@ -1,10 +1,11 @@
 var Encrypt = require('./crypto.js');
 var http = require('http');
-const userAgents = require('./userAgent');
+var userAgents = require('./userAgent');
 var cookie = null;
 var user = {};
 var jsessionid = randomString('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKMNOPQRSTUVWXYZ\\/+', 176) + ':' + (new Date).getTime();
 var nuid = randomString('0123456789abcdefghijklmnopqrstuvwxyz', 32);
+var redis = require('./redis');
 
 function randomString(pattern, length) {
 	return Array.apply(null, {
@@ -20,6 +21,7 @@ function WebAPI(options, callback) {
 	let userAgent = userAgents[parseInt(Math.random() * userAgents.length)];
 	let response = options.response;
 	let rsp = '';
+	let ip = getClientIp(options.request, 'nginx');
 
 	if (options.data) {
 		options.data.csrf_token = '';
@@ -28,6 +30,7 @@ function WebAPI(options, callback) {
 		options.data.csrf_token = '';
 	}
 	let cryptoreq = Encrypt(options.data);
+
 	//不使用
 	//return new Promise((resolve, reject) => {}}
 	var httpClients = http.request({
@@ -42,7 +45,9 @@ function WebAPI(options, callback) {
 			'Referer': 'http://music.163.com',
 			'Host': 'music.163.com',
 			'Cookie': cookie,
-			'User-Agent': userAgent
+			'User-Agent': userAgent,
+			'X-Forwarded-For': ip,
+			'Proxy-Client-IP': ip
 		}
 	}, function(res) {
 		//console.log(res.statusCode)
@@ -67,9 +72,29 @@ function WebAPI(options, callback) {
 					WebAPI(options, callback);
 					return;
 				}
-				
+				var count = {
+					apiType: 'count_apiType',
+					apiName: `count_apiType_${options.apiType}`,
+					total: 1
+				}
+
+				//临时
+				redis.hgetAll('count_apiType', function(res) {
+					//console.log(res);
+					if (res) {
+						var beforeCount = parseInt(res[count.apiName]) || 0;
+						//console.log(beforeCount);
+						count.total = beforeCount + 1;
+						redis.hmSet(count);
+					} else {
+						redis.hmSet(count);
+					}
+
+				})
+
+				console.log(`时间:[${formatDate()}],访问ip:[${ip}],api:[${decodeURI(options.request.url)}],path:[${options.path}]`)
 				if (callback) {
-					callback(rsp)
+					callback(rsp);
 				} else {
 					if (res.headers['set-cookie']) {
 						cookie = baseCookie + ';' + res.headers['set-cookie'];
@@ -112,7 +137,33 @@ function getClientIp(req, proxyType) {
 	return ip;
 };
 
+function formatDate(date, fmt) {
+	if (!date) {
+		date = new Date();
+	} else {
+		date = new Date(date);
+	}
+	if (fmt === undefined) {
+		fmt = 'yyyy-MM-dd hh:mm:ss';
+	}
+	var o = {
+		'M+': date.getMonth() + 1, //月份
+		'd+': date.getDate(), //日
+		'h+': date.getHours(), //小时
+		'm+': date.getMinutes(), //分
+		's+': date.getSeconds(), //秒
+		'q+': Math.floor((date.getMonth() + 3) / 3), //季度
+		'S': date.getMilliseconds() //毫秒
+	};
+	if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+	for (var k in o)
+		if (new RegExp('(' + k + ')').test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)));
+	return fmt;
+
+}
+
 module.exports = {
 	WebAPI: WebAPI,
-	getClientIp:getClientIp
+	getClientIp: getClientIp,
+	formatDate: formatDate
 }

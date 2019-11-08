@@ -1,20 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const Tools = require('../src/http');
+const redis = require('../src/redis');
 const version = "/v1";
 
+
+
 router.use((req, res, next) => {
-	//console.log(`路由执行成功啦~~~`, Date.now());
-	console.log(`访问ip:${Tools.getClientIp(req,'nginx')}`)
+	//console.log(`首页访问ip:${Tools.getClientIp(req,'nginx')}`)
 	next();
 })
 
-router.get('/',function(request, response){
+router.get('/', function(request, response) {
 	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
-	response.type('html');
-	response.render('index',{
-        title:'文档中心'
-    })
+	//redis关闭异常影响，临时使用
+	redis.hgetAll('count_apiType', function(res, totals) {
+		//console.log(totals);
+		response.type('html');
+		response.render('index', {
+			title: '文档中心',
+			totals: totals
+		})
+	}, true);
+})
+
+router.get(version, function(request, response) {
+	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
+	//redis关闭异常影响，临时使用
+	redis.hgetAll('count_apiType', function(res, totals) {
+		response.type('html');
+		response.render('api', {
+			title: 'api详情',
+			version: version,
+			totals: totals
+		})
+
+	}, true);
 })
 
 /*
@@ -26,7 +47,7 @@ router.get('/',function(request, response){
  */
 router.get(version + '/search', function(request, response) {
 	var data = {
-		s: request.query.s || '',
+		s: decodeURI(request.query.s) || '',
 		offset: request.query.offset || '0',
 		limit: request.query.limit || 20,
 		type: request.query.type || 1
@@ -35,7 +56,8 @@ router.get(version + '/search', function(request, response) {
 		path: '/weapi/cloudsearch/get/web',
 		request: request,
 		response: response,
-		data: data
+		data: data,
+		apiType: '1'
 	};
 	Tools.WebAPI(params)
 });
@@ -55,7 +77,8 @@ router.get(version + '/music/url', function(request, response) {
 			br: parseInt(request.query.br || 999000),
 		},
 		request: request,
-		response: response
+		response: response,
+		apiType: '2'
 	};
 	Tools.WebAPI(params);
 });
@@ -73,7 +96,8 @@ router.get(version + '/lyric', function(request, response) {
 		path: `/api/song/lyric?os=osx&id=${request.query.id}&lv=-1&kv=-1&tv=-1`,
 		request: request,
 		response: response,
-		method: 'GET'
+		method: 'GET',
+		apiType: '3'
 	};
 	Tools.WebAPI(params, function(res) {
 		response.setHeader("Content-Type", "application/json");
@@ -102,7 +126,8 @@ router.get(version + '/music/detail', function(request, response) {
 		path: '/weapi/v3/song/detail',
 		request: request,
 		response: response,
-		data: data
+		data: data,
+		apiType: '4'
 	};
 	Tools.WebAPI(params);
 });
@@ -121,6 +146,7 @@ router.get(version + '/album/detail', function(request, response) {
 		path: `/weapi/v1/album/${id}`,
 		request: request,
 		response: response,
+		apiType: '5'
 	};
 	Tools.WebAPI(params);
 });
@@ -139,6 +165,7 @@ router.get(version + '/playlist/catlist', function(request, response) {
 		path: '/weapi/playlist/catalogue',
 		request: request,
 		response: response,
+		apiType: '6'
 	});
 })
 
@@ -153,7 +180,8 @@ router.get(version + '/playlist/hot', function(request, response) {
 	Tools.WebAPI({
 		path: '/api/playlist/hottags',
 		request: request,
-		response: response
+		response: response,
+		apiType: '7'
 	});
 })
 
@@ -169,6 +197,7 @@ router.get(version + '/personalized/newsong', function(request, response) {
 		path: '/api/personalized/newsong',
 		request: request,
 		response: response,
+		apiType: '8',
 		data: {
 			type: 'recommend'
 		}
@@ -188,6 +217,7 @@ router.get(version + '/search/hot', function(request, response) {
 		path: '/weapi/search/hot',
 		request: request,
 		response: response,
+		apiType: '9',
 		data: {
 			type: request.query.type || 1111
 		}
@@ -206,6 +236,7 @@ router.get(version + '/personalized', function(request, response) {
 		path: '/api/personalized/playlist',
 		request: request,
 		response: response,
+		apiType: '10'
 	});
 })
 

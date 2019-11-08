@@ -14,15 +14,17 @@
     "crypto": "^1.0.1",
     "ejs": "^2.7.1",
     "express": "^4.17.1",
+    "express-rate-limit": "^3.5.3",
     "fs-extra": "^8.1.0",
+    "redis": "^2.8.0",
     "request": "^2.88.0"
   },
   "devDependencies": {},
   "keywords": [
     "node",
-    "gooseeker",
+    "music",
     "koa",
-    "download"
+    "express"
   ],
   "repository": {
     "type": "git",

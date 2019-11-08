@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= title %></title>
+    <%- include('./header')%>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+	<%- include('./top')%>
+	<div class="qrcode-other w990">
+		<ul>
+			<li><a href="<%= version %>/search?s=大城小爱" target="_blank">1、搜索歌曲名</a></li>
+			<li><a href="<%= version %>/music/url?id=25643093" target="_blank">2、单曲播放地址</a></li>
+			<li><a href="<%= version %>/lyric?id=25643093" target="_blank">3、歌词</a></li>
+			<li><a href="<%= version %>/music/detail?id=25643093" target="_blank">4、单曲详情</a></li>
+			<li><a href="<%= version %>/album/detail?id=2263164" target="_blank">5、专辑详情</a></li>
+			<li><a href="<%= version %>/playlist/catlist" target="_blank">6、歌单类型列表</a></li>
+			<li><a href="<%= version %>/playlist/hot" target="_blank">7、歌单类型列表-热门类型</a></li>
+			<li><a href="<%= version %>/personalized/newsong" target="_blank">8、推荐新音乐</a></li>
+			<li><a href="<%= version %>/search/hot" target="_blank">9、搜索hot</a></li>
+			<li><a href="<%= version %>/personalized" target="_blank">10、推荐歌单</a></li>
+		</ul>
+	</div>
+    <%- include('./footer')%>
+</body>
+<script type="text/javascript">
+		$(function () {
+
+		    
+		})
+</script>
+</html>

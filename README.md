@@ -2,6 +2,7 @@
 
 [music-preview](https://music.jeeas.cn/)
 
+### 项目启动
 ```
  
  npm run server
@@ -9,9 +10,16 @@
  参考项目
 
 	https://github.com/sqaiyan/netmusic-node
-
  	https://github.com/Binaryify/NeteaseCloudMusicApi
 	
+
+```
+
+### API调用限制
+```javascript
+ 	
+ 	express-rate-limit:访问限制20s内60次
+ 	apicache:缓存3s
 
 ```
 
@@ -25,34 +33,34 @@
 		以get方式请求
 
 		1、搜索歌曲名 params[s=歌曲名,type,offset,limit]
-		  /search?s=歌曲名
+		  getApi/search?s=歌曲名
 
 		2、单曲播放地址 params[id=歌曲id,br]
-		  /music/url?id=25643093
+		  getApi/music/url?id=25643093
 
 		3、歌词 params[id]
-		  /lyric?id=25643093
+		  getApi/lyric?id=25643093
 		
 		4、单曲详情 params[id]
-		  /music/detail?id=25643093
+		  getApi/music/detail?id=25643093
 
 		5、专辑详情 params[id] 
-		  /album/detail?id=2263164
+		  getApi/album/detail?id=2263164
 
 		6、歌单类型列表 params[]
-		  /playlist/catlist
+		  getApi/playlist/catlist
 		
 		7、歌单类型列表-热门类型 params[] 
-		  /playlist/hot
+		  getApi/playlist/hot
 		
 		8、推荐新音乐 params[] 
-		  /personalized/newsong
+		  getApi/personalized/newsong
 
 		9、搜索hot params[]
-		  /search/hot
+		  getApi/search/hot
 
 		10、推荐歌单 params[] 
-		  /personalized
+		  getApi/personalized
 	
 
 ```
