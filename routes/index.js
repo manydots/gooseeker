@@ -4,38 +4,58 @@ const Tools = require('../src/http');
 const redis = require('../src/redis');
 const version = "/v1";
 
-
-
 router.use((req, res, next) => {
 	//console.log(`首页访问ip:${Tools.getClientIp(req,'nginx')}`)
+	//console.log(res.redisClient)
 	next();
 })
 
 router.get('/', function(request, response) {
 	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
 	//redis关闭异常影响，临时使用
-	redis.hgetAll('count_apiType', function(res, totals) {
-		//console.log(totals);
+
+	if (response.redisClient) {
+		redis.hgetAll('count_apiType', function(res, totals) {
+			//console.log(totals);
+			response.type('html');
+			response.render('index', {
+				title: '文档中心',
+				totals: totals
+			})
+		}, true);
+	} else {
 		response.type('html');
 		response.render('index', {
 			title: '文档中心',
-			totals: totals
+			totals: 0
 		})
-	}, true);
+	}
 })
 
 router.get(version, function(request, response) {
+
 	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
 	//redis关闭异常影响，临时使用
-	redis.hgetAll('count_apiType', function(res, totals) {
+	if (response.redisClient) {
+		redis.hgetAll('count_apiType', function(res, totals) {
+			response.type('html');
+			response.render('api', {
+				title: 'api详情',
+				version: version,
+				totals: totals
+			})
+
+		}, true);
+	} else {
 		response.type('html');
 		response.render('api', {
 			title: 'api详情',
 			version: version,
-			totals: totals
+			totals: 0
 		})
+	}
 
-	}, true);
+
 })
 
 /*

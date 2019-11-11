@@ -78,19 +78,20 @@ function WebAPI(options, callback) {
 					total: 1
 				}
 
-				//临时
-				redis.hgetAll('count_apiType', function(res) {
-					//console.log(res);
-					if (res) {
-						var beforeCount = parseInt(res[count.apiName]) || 0;
-						//console.log(beforeCount);
-						count.total = beforeCount + 1;
-						redis.hmSet(count);
-					} else {
-						redis.hmSet(count);
-					}
+				if (response.redisClient) {
+					redis.hgetAll('count_apiType', function(res) {
+						//console.log(res);
+						if (res) {
+							var beforeCount = parseInt(res[count.apiName]) || 0;
+							//console.log(beforeCount);
+							count.total = beforeCount + 1;
+							redis.hmSet(count);
+						} else {
+							redis.hmSet(count);
+						}
 
-				})
+					})
+				}
 
 				console.log(`时间:[${formatDate()}],访问ip:[${ip}],api:[${decodeURI(options.request.url)}],path:[${options.path}]`)
 				if (callback) {

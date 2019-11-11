@@ -12,17 +12,18 @@ function initRedis(callback) {
 		}
 
 	});
-
+	let first = true;
 	client.on('error', function() {
 		console.log('redis connect error!');
+		if (callback && first == true) {
+			first = false;
+			callback(null);
+		}
 	});
 
 };
 
 function hmSet(options, callback) {
-	if (!client) {
-		initRedis()
-	}
 	if (client) {
 		client.hmset(options.apiType, options.apiName, options.total);
 		if (callback) {
@@ -32,10 +33,6 @@ function hmSet(options, callback) {
 }
 
 function hgetAll(keys, callback, isTotal) {
-	if (!client) {
-		initRedis()
-	}
-
 	if (client) {
 		client.hgetall(keys, function(err, obj) {
 			if (err) {
@@ -50,7 +47,6 @@ function hgetAll(keys, callback, isTotal) {
 			}
 		});
 	}
-
 }
 var apiLength = 10;
 
