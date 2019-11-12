@@ -4,6 +4,10 @@
 	margin: 0;
 	list-style: none;
 	text-decoration: none;
+	font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+pre{
+	font-size: 13px;
 }
 
 input:-webkit-autofill {
