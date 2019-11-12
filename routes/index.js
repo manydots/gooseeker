@@ -13,21 +13,19 @@ router.use((req, res, next) => {
 
 router.get('/', function(request, response) {
 	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
-	//redis关闭异常影响，临时使用
-
 	if (response.redisClient) {
 		redis.hgetAll('count_apiType', function(res, totals) {
 			//console.log(totals);
 			response.type('html');
 			response.render('index', {
-				title: '文档中心',
+				title: '网易云音乐API-music文档说明',
 				totals: totals
 			})
 		}, true);
 	} else {
 		response.type('html');
 		response.render('index', {
-			title: '文档中心',
+			title: '网易云音乐API-music文档说明',
 			totals: 0
 		})
 	}
@@ -35,12 +33,11 @@ router.get('/', function(request, response) {
 
 router.get(version, function(request, response) {
 	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
-	//redis关闭异常影响，临时使用
 	if (response.redisClient) {
 		redis.hgetAll('count_apiType', function(res, totals) {
 			response.type('html');
 			response.render('api', {
-				title: 'api详情',
+				title: 'API调用示例',
 				version: version,
 				totals: totals
 			})
@@ -49,7 +46,7 @@ router.get(version, function(request, response) {
 	} else {
 		response.type('html');
 		response.render('api', {
-			title: 'api详情',
+			title: 'API调用示例',
 			version: version,
 			totals: 0
 		})
@@ -258,7 +255,7 @@ router.get(version + '/personalized', function(request, response) {
 	});
 })
 
-//一下没改
+//以下没改
 //推荐mv
 router.get(version + '/personalized/mv', function(request, response) {
 	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
