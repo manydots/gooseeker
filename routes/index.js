@@ -7,8 +7,9 @@ const version = "/v1";
 router.use((req, res, next) => {
 	//console.log(`首页访问ip:${Tools.getClientIp(req,'nginx')}`)
 	//console.log(res.redisClient)
+	//console.log(req.url)
 	next();
-})
+});
 
 router.get('/', function(request, response) {
 	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
@@ -30,10 +31,9 @@ router.get('/', function(request, response) {
 			totals: 0
 		})
 	}
-})
+});
 
 router.get(version, function(request, response) {
-
 	//解决渲染HTML失败问题,添加服务器返回渲染的type值response.type('html');
 	//redis关闭异常影响，临时使用
 	if (response.redisClient) {
@@ -54,8 +54,17 @@ router.get(version, function(request, response) {
 			totals: 0
 		})
 	}
+});
 
+router.get('/socket.io/socket.io.js', function(request, response) {
 
+})
+router.get('/socket', function(request, response) {
+	response.type('html');
+	response.render('socket', {
+		title: 'socket.Io',
+		version: version,
+	})
 })
 
 /*

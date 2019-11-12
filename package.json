@@ -17,14 +17,17 @@
     "express-rate-limit": "^3.5.3",
     "fs-extra": "^8.1.0",
     "redis": "^2.8.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "socket.io": "~2.1.1"
   },
   "devDependencies": {},
   "keywords": [
     "node",
     "music",
     "koa",
-    "express"
+    "express",
+    "socket",
+    "redis"
   ],
   "repository": {
     "type": "git",

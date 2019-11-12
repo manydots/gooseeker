@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= title %></title>
+    <%- include('./header')%>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <%- include('./top')%>
+    <%- include('./nav')%>
+      <div class="qrcode-other w990">
+    <pre class="brush: js; collapse: true;">
+    const hostname = "https://music.jeeas.cn/";
+    const version = "/v1";
+    const getApi = hostname + version;
+      
+    以get方式请求
+
+    1、搜索歌曲名 params[s=歌曲名,type,offset,limit]
+      getApi/search?s=歌曲名
+
+    2、单曲播放地址 params[id=歌曲id,br]
+      getApi/music/url?id=25643093
+
+    3、歌词 params[id]
+      getApi/lyric?id=25643093
+    
+    4、单曲详情 params[id]
+      getApi/music/detail?id=25643093
+
+    5、专辑详情 params[id] 
+      getApi/album/detail?id=2263164
+
+    6、歌单类型列表 params[]
+      getApi/playlist/catlist
+    
+    7、歌单类型列表-热门类型 params[] 
+      getApi/playlist/hot
+    
+    8、推荐新音乐 params[] 
+      getApi/personalized/newsong
+
+    9、搜索hot params[]
+      getApi/search/hot
+
+    10、推荐歌单 params[] 
+      getApi/personalized
+
+
+    参考项目
+      https://github.com/sqaiyan/netmusic-node
+      https://github.com/Binaryify/NeteaseCloudMusicApi
+    </pre>
+  </div>
+    <%- include('./footer')%>
+</body>
+<script type="text/javascript">
+		$(function () {
+			var socket = io();
+			socket.emit("message", 'join')
+		})
+</script>
+</html>

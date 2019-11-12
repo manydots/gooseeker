@@ -6,6 +6,7 @@ var user = {};
 var jsessionid = randomString('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKMNOPQRSTUVWXYZ\\/+', 176) + ':' + (new Date).getTime();
 var nuid = randomString('0123456789abcdefghijklmnopqrstuvwxyz', 32);
 var redis = require('./redis');
+var socketServer = require('./socket');
 
 function randomString(pattern, length) {
 	return Array.apply(null, {
@@ -78,19 +79,37 @@ function WebAPI(options, callback) {
 					total: 1
 				}
 
+
+
 				if (response.redisClient) {
-					redis.hgetAll('count_apiType', function(res) {
-						//console.log(res);
+					redis.hgetAll('count_apiType', function(res,totals) {
+						//console.log(res,totals);
 						if (res) {
 							var beforeCount = parseInt(res[count.apiName]) || 0;
 							//console.log(beforeCount);
 							count.total = beforeCount + 1;
+							if (response.ioServer) {
+								//console.log('ioSocket-----emit所有人推送,broadcast除某个套接字以外的所有人发送消息，eg:connection不推送');
+								response.ioServer.emit('news', {
+									totals: totals + 1,
+									newsType: "server-prop-for",
+									dataType:'number'
+								});
+							}
 							redis.hmSet(count);
 						} else {
+							if (response.ioServer) {
+								//console.log('ioSocket-----emit所有人推送,broadcast除某个套接字以外的所有人发送消息，eg:connection不推送');
+								response.ioServer.emit('news', {
+									totals: totals,
+									newsType: "server-prop-for",
+									dataType:'number'
+								});
+							}
 							redis.hmSet(count);
 						}
 
-					})
+					},true)
 				}
 
 				console.log(`时间:[${formatDate()}],访问ip:[${ip}],api:[${decodeURI(options.request.url)}],path:[${options.path}]`)
@@ -163,8 +182,34 @@ function formatDate(date, fmt) {
 
 }
 
+function initServer(io,callback) {
+	if (io) {
+		io.on('connection', function(socket) {
+			socket.on('message', function(data) {
+				console.log(`[${formatDate()}]---index ${data.message}---`)
+			});
+			//console.log('emit所有人推送,broadcast除某个套接字以外的所有人发送消息，eg:connection不推送');
+			//向所有连接推送news消息
+			socket.broadcast.emit('news', {
+				message: 'new connection',
+				newsType: 'server-prop-broadcast',
+				dataType:'string'
+			});
+			if(callback){
+				callback(socket)
+			}
+
+			socket.on('disconnect', function() {
+				//console.log('disconnect')
+			});
+		});
+	}
+
+}
+
 module.exports = {
 	WebAPI: WebAPI,
 	getClientIp: getClientIp,
-	formatDate: formatDate
+	formatDate: formatDate,
+	initServer: initServer
 }

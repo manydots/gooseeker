@@ -5,13 +5,22 @@
 ### 项目启动
 ```
  
- npm run server
+   npm run server
+   
+   windows:redis下载地址
+   http://qrcode.jeeas.cn/download/redis.zip
 
- 参考项目
+        参考项目
+			https://github.com/sqaiyan/netmusic-node
+		 	https://github.com/Binaryify/NeteaseCloudMusicApi
+		
+```
 
-	https://github.com/sqaiyan/netmusic-node
- 	https://github.com/Binaryify/NeteaseCloudMusicApi
-	
+### 更新
+```javascript
+ 	
+ 	socket.io:向首页推送API调用数据
+ 	redis:将API调用数据存入redis中
 
 ```
 

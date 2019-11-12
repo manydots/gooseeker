@@ -1,14 +1,21 @@
 var express = require('express');
 var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
 var path = require('path');
 var cache = require('apicache').middleware;
+var rateLimit = require("express-rate-limit");
 var router = require('./routes/index');
+//var Tools = require('./src/tools');
 var redis = require('./src/redis');
+var socketServer = require('./src/http');
+
 var serverName = process.env.NAME || 'Unknown';
 var port = process.env.port || 3000;
 var url = `http://127.0.0.1:${port}`;
-var rateLimit = require("express-rate-limit");
 var redisClient = false;
+var ioSocket = null;
+socketServer.initServer(io);
 
 //启动查看redis状态
 redis.initRedis(function(client) {
@@ -34,13 +41,16 @@ app.use(cache('0.05 minutes', ((req, res) => res.statusCode === 200)));
 
 //设置跨域访问
 app.all('*', (req, res, next) => {
+	//console.log(req.url)
 	//挂载redis连接状态
 	res.redisClient = redisClient;
+	res.ioServer = io;
+	res.ioSocket = ioSocket;
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
 	res.header("X-Powered-By", '3.2.1');
-	res.header("Content-Type", "application/json;charset=utf-8");
+	//res.header("Content-Type", "application/json;charset=utf-8"); //会影响socket
 	next();
 });
 
@@ -51,8 +61,9 @@ app.set("view engine", "ejs");
 //使用路由
 app.use(router);
 
-app.listen(port, () => {
-	console.log('Server listening at port %d', port);
+//Tools.portIsOccupied(port);
+server.listen(port, () => {
+	console.log('Socket Server listening at port %d', port);
 	console.log('Visit http://127.0.0.1:%d', port);
 	console.log('Hello, I\'m %s, how can I help?', serverName);
 });
