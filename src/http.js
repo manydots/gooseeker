@@ -6,7 +6,6 @@ var user = {};
 var jsessionid = randomString('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKMNOPQRSTUVWXYZ\\/+', 176) + ':' + (new Date).getTime();
 var nuid = randomString('0123456789abcdefghijklmnopqrstuvwxyz', 32);
 var redis = require('./redis');
-var socketServer = require('./socket');
 
 function randomString(pattern, length) {
 	return Array.apply(null, {
@@ -78,8 +77,6 @@ function WebAPI(options, callback) {
 					apiName: `count_apiType_${options.apiType}`,
 					total: 1
 				}
-
-
 
 				if (response.redisClient) {
 					redis.hgetAll('count_apiType', function(res, totals) {
