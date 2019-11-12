@@ -27,7 +27,8 @@
     "koa",
     "express",
     "socket",
-    "redis"
+    "redis",
+    "websoket"
   ],
   "repository": {
     "type": "git",

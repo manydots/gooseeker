@@ -82,34 +82,34 @@ function WebAPI(options, callback) {
 
 
 				if (response.redisClient) {
-					redis.hgetAll('count_apiType', function(res,totals) {
+					redis.hgetAll('count_apiType', function(res, totals) {
 						//console.log(res,totals);
 						if (res) {
 							var beforeCount = parseInt(res[count.apiName]) || 0;
 							//console.log(beforeCount);
 							count.total = beforeCount + 1;
 							if (response.ioServer) {
-								//console.log('ioSocket-----emit所有人推送,broadcast除某个套接字以外的所有人发送消息，eg:connection不推送');
+								console.log('---socket.io数据news推送中---');
 								response.ioServer.emit('news', {
 									totals: totals + 1,
 									newsType: "server-prop-for",
-									dataType:'number'
+									dataType: 'number'
 								});
 							}
 							redis.hmSet(count);
 						} else {
 							if (response.ioServer) {
-								//console.log('ioSocket-----emit所有人推送,broadcast除某个套接字以外的所有人发送消息，eg:connection不推送');
+								console.log('---socket.io数据news推送中---');
 								response.ioServer.emit('news', {
 									totals: totals,
 									newsType: "server-prop-for",
-									dataType:'number'
+									dataType: 'number'
 								});
 							}
 							redis.hmSet(count);
 						}
 
-					},true)
+					}, true)
 				}
 
 				console.log(`时间:[${formatDate()}],访问ip:[${ip}],api:[${decodeURI(options.request.url)}],path:[${options.path}]`)
@@ -182,26 +182,27 @@ function formatDate(date, fmt) {
 
 }
 
-function initServer(io,callback) {
+function initServer(io, callback) {
 	if (io) {
 		io.on('connection', function(socket) {
 			socket.on('message', function(data) {
-				console.log(`[${formatDate()}]---index ${data.message}---`)
+				//console.log(`[${formatDate()}]---index ${data.message}---`)
 			});
 			//console.log('emit所有人推送,broadcast除某个套接字以外的所有人发送消息，eg:connection不推送');
 			//向所有连接推送news消息
 			socket.broadcast.emit('news', {
 				message: 'new connection',
 				newsType: 'server-prop-broadcast',
-				dataType:'string'
+				dataType: 'string'
 			});
-			if(callback){
-				callback(socket)
-			}
 
 			socket.on('disconnect', function() {
-				//console.log('disconnect')
+				console.log(`[${formatDate()}]---Someone Left.---`)
 			});
+
+			if (callback) {
+				callback(socket)
+			}
 		});
 	}
 
