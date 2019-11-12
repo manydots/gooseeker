@@ -80,16 +80,17 @@ router.get(version + '/search', function(request, response) {
 /*
  **
  ** 2、单曲播放地址
- **	params[id=歌曲id,br]
+ **	params[id=歌曲id,br=歌曲码率]
  **	/music/url?id=25643093
  **
  */
 router.get(version + '/music/url', function(request, response) {
+	//br[int]可用值为 64000,128000,198000,320000
 	var params = {
 		path: '/weapi/song/enhance/player/url',
 		data: {
 			ids: [parseInt(request.query.id)],
-			br: parseInt(request.query.br || 999000),
+			br: parseInt(request.query.br || 198000),
 		},
 		request: request,
 		response: response,
