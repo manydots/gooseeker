@@ -56,17 +56,6 @@ router.get(version, function(request, response) {
 	}
 });
 
-router.get('/socket.io/socket.io.js', function(request, response) {
-
-})
-router.get('/socket', function(request, response) {
-	response.type('html');
-	response.render('socket', {
-		title: 'socket.Io',
-		version: version,
-	})
-})
-
 /*
  **
  ** 1、搜索歌曲名
