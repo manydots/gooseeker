@@ -30,12 +30,21 @@ function WebAPI(options, callback) {
 		options.data.csrf_token = '';
 	}
 	let cryptoreq = Encrypt(options.data);
+	let method = options.method ? options.method : "POST";
+
+	if (!authApi(options, method)) {
+		response.send({
+			code: -101,
+			msg: `${method} fetch error.`
+		})
+		return;
+	}
 
 	//不使用
 	//return new Promise((resolve, reject) => {}}
 	var httpClients = http.request({
 		hostname: 'music.163.com',
-		method: options.method ? options.method : "POST",
+		method: method,
 		path: options.path,
 		headers: {
 			'Accept': '*/*',
@@ -53,7 +62,7 @@ function WebAPI(options, callback) {
 		//console.log(res.statusCode)
 		res.on('error', function(err) {
 			response.send({
-				code: 200,
+				code: -102,
 				msg: 'fetch error'
 			});
 			return;
@@ -71,12 +80,12 @@ function WebAPI(options, callback) {
 				if (!rsp || rsp == '' || rsp == null) {
 					WebAPI(options, callback);
 					return;
-				}
+				};
 				var count = {
 					apiType: 'count_apiType',
 					apiName: `count_apiType_${options.apiType}`,
 					total: 1
-				}
+				};
 
 				if (response.redisClient) {
 					redis.hgetAll('count_apiType', function(res, totals) {
@@ -87,7 +96,7 @@ function WebAPI(options, callback) {
 							count.total = beforeCount + 1;
 							if (response.ioServer) {
 								console.log('---socket.io数据news推送中---');
-								response.ioServer.emit('news', {
+								response.ioServer.sockets.emit('news', {
 									totals: totals + 1,
 									newsType: "server-prop-for",
 									dataType: 'number'
@@ -97,7 +106,7 @@ function WebAPI(options, callback) {
 						} else {
 							if (response.ioServer) {
 								console.log('---socket.io数据news推送中---');
-								response.ioServer.emit('news', {
+								response.ioServer.sockets.emit('news', {
 									totals: totals,
 									newsType: "server-prop-for",
 									dataType: 'number'
@@ -131,6 +140,196 @@ function WebAPI(options, callback) {
 	httpClients.write('params=' + cryptoreq.params + '&encSecKey=' + cryptoreq.encSecKey);
 	httpClients.end();
 };
+
+function socketHttp(io, options, callback, errors) {
+	let cookie = baseCookie;
+	let userAgent = userAgents[parseInt(Math.random() * userAgents.length)];
+	let rsp = '';
+	let method = options.method ? options.method : "POST";
+	if (options.data) {
+		options.data.csrf_token = '';
+	} else {
+		options.data = {};
+		options.data.csrf_token = '';
+	}
+	let cryptoreq = Encrypt(options.data);
+	//console.log(method)
+	if (!authApi(options, method)) {
+		if (errors) {
+			errors({
+				code: -101,
+				msg: `${method} fetch error.`
+			})
+		}
+		return;
+	}
+	var httpClients = http.request({
+		hostname: 'music.163.com',
+		method: method,
+		path: options.path,
+		headers: {
+			'Accept': '*/*',
+			'Accept-Language': 'zh-CN,zh;q=0.8,gl;q=0.6,zh-TW;q=0.4',
+			'Connection': 'keep-alive',
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Referer': 'http://music.163.com',
+			'Host': 'music.163.com',
+			'Cookie': cookie,
+			'User-Agent': userAgent,
+		}
+	}, function(res) {
+		res.on('error', function(err) {
+			if (errors) {
+				errors({
+					code: -102,
+					msg: 'fetch error'
+				})
+			}
+			return;
+		});
+		res.setEncoding('utf8');
+		if (res.statusCode != 200) {
+
+		} else {
+			res.on('data', function(chunk) {
+				rsp += chunk;
+			});
+
+			//console.log(rsp)
+			res.on('end', function() {
+				if (!rsp || rsp == '' || rsp == null) {
+					socketHttp(io, options, callback, errors);
+					return;
+				} else {
+					callback(stringToObject(rsp));
+				}
+
+				var count = {
+					apiType: 'count_apiType',
+					apiName: `count_apiType_${options.apiType}`,
+					total: 1
+				};
+
+				//console.log(options.redisClient);
+				if (io && io.redisClient) {
+					redis.hgetAll('count_apiType', function(res, totals) {
+						//console.log(res,totals);
+						if (res) {
+							var beforeCount = parseInt(res[count.apiName]) || 0;
+							//console.log(beforeCount);
+							count.total = beforeCount + 1;
+							console.log('---socketHttp数据news推送中---');
+							io.sockets.emit('news', {
+								totals: totals + 1,
+								newsType: "server-prop-for",
+								dataType: 'number'
+							});
+
+							redis.hmSet(count);
+						} else {
+							console.log('---socketHttp数据news推送中---');
+							io.sockets.emit('news', {
+								totals: totals,
+								newsType: "server-prop-for",
+								dataType: 'number'
+							});
+							redis.hmSet(count);
+						}
+
+					}, true)
+				}
+
+
+			})
+		}
+	})
+	httpClients.write('params=' + cryptoreq.params + '&encSecKey=' + cryptoreq.encSecKey);
+	httpClients.end();
+}
+
+function stringToObject(data) {
+	var results = null;
+	if (data && data != '' && data != '""') {
+		results = data;
+	} else {
+		return;
+	}
+	while (typeof results === 'string') {
+		if (results.indexOf('{') > -1 && results.lastIndexOf('}') > -1) {
+			results = JSON.parse(results);
+		} else {
+			break;
+		}
+	};
+	return results;
+}
+
+function authApi(options, method) {
+	let isReq = false;
+	var apiList = [{
+		api: '/weapi/cloudsearch/get/web',
+		apiType: '1',
+		desc: '搜索歌曲名',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/weapi/song/enhance/player/url',
+		apiType: '2',
+		desc: '单曲播放地址',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/api/song/lyric',
+		apiType: '3',
+		desc: '歌词',
+		methodOnly: 'get,GET'
+	}, {
+		api: '/weapi/v3/song/detail',
+		apiType: '4',
+		desc: '单曲详情',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/weapi/v1/album/',
+		apiType: '5',
+		desc: '专辑详情',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/weapi/playlist/catalogue',
+		apiType: '6',
+		desc: '歌单类型列表',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/api/playlist/hottags',
+		apiType: '7',
+		desc: '歌单类型列表-热门类型',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/api/personalized/newsong',
+		apiType: '8',
+		desc: '推荐新音乐',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/weapi/search/hot',
+		apiType: '9',
+		desc: '搜索hot',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/api/personalized/playlist',
+		apiType: '10',
+		desc: '推荐歌单',
+		methodOnly: 'post,POST'
+	}];
+
+	for (let item of apiList) {
+		if (item.apiType === options.apiType) {
+			if (item.methodOnly.indexOf(method) > -1) {
+				isReq = true;
+			}
+			break;
+		}
+	}
+
+	//console.log(isReq)
+	return isReq;
+}
 
 function getClientIp(req, proxyType) {
 	let ip = req.connection.remoteAddress || req.socket.remoteAddress || (req.connection.socket ? req.connection.socket.remoteAddress : null);
@@ -185,16 +384,52 @@ function initServer(io, callback) {
 			socket.on('message', function(data) {
 				//console.log(`[${formatDate()}]---index ${data.message}---`)
 			});
-			//console.log('emit所有人推送,broadcast除某个套接字以外的所有人发送消息，eg:connection不推送');
-			//向所有连接推送news消息
+
+			//给除了自己以外的客户端广播消息
 			socket.broadcast.emit('news', {
 				message: 'new connection',
 				newsType: 'server-prop-broadcast',
 				dataType: 'string'
 			});
 
+			//给所有客户端广播消息
+			//io.sockets.emit("msg",{data:"hello,all"});
+
 			socket.on('disconnect', function() {
 				console.log(`[${formatDate()}]---Someone Left.---`)
+			});
+
+			socket.on('https-music-api', function(data) {
+				//x-real-ip x-forwarded-for 通过nginx后的真实ip
+				//console.log(socket.handshake.headers)
+				//仅[127.0.0.1:3000,music.jeeas.cn]可使用socketHttp方式调用
+				if (socket.handshake.headers.host == '127.0.0.1:3000' || socket.handshake.headers.host == 'music.jeeas.cn') {
+					//console.log(data.options)
+					socketHttp(io, data.options, function(res) {
+						//socket.emit给当前连接发送消息
+						//console.log(res)
+						if (data.isNeedPage) {
+							var pageSize = data.options.data.limit;
+							var totals = res.result.songCount;
+							res.page = {
+								pageCount: Math.ceil(totals / pageSize),
+								pageIndex: data.options.data.pageIndex,
+								totals: totals,
+								keywords: data.options.data.s
+							}
+						}
+						socket.emit('songs', res);
+					}, function(err) {
+						res.page = null;
+						socket.emit('songs', err);
+					})
+				} else {
+					socket.emit('songs', {
+						code: -103,
+						msg: 'ip-limit.'
+					});
+				}
+
 			});
 
 			if (callback) {
@@ -205,9 +440,15 @@ function initServer(io, callback) {
 
 }
 
+function randomSongs() {
+	var songs = ['情人知己', '千里之外', '思念是一种病', '大城小爱'];
+	return songs[parseInt(Math.random() * songs.length)]
+}
+
 module.exports = {
 	WebAPI: WebAPI,
 	getClientIp: getClientIp,
 	formatDate: formatDate,
-	initServer: initServer
+	initServer: initServer,
+	randomSongs:randomSongs
 }

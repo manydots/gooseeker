@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= title %></title>
+    <%- include('./header')%>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+	<script type="text/javascript" src="/static/doT.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/static/base.js"></script>
+</head>
+<body>
+    <div class="ex-music">
+    	<div class="ex-music-container w990">
+    		<div class="ex-search-top">
+    			<div class="fl ex-keywords-wrapper">
+    				<input value="<%= keywords %>" placeholder="试试脑海中的歌曲名..." type="text" name="keywords" class="keywords">
+    			</div>
+	    		<div class="fl ex-search-submit">
+	    			搜索
+	    		</div>
+	    	</div>
+	    	<div class="ex-search-result">
+	    			
+	    	</div>
+	    	<div class="ex-search-page">
+	    			
+	    	</div>
+    	</div>
+    	
+  	</div>
+	 
+
+  	  <!-- 渲染模板开始 -->
+  	  <!-- 
+           it等价于数据源var list = {xxxx};指向list;
+           v(value)指向this;
+           index(i)当前的索引值;
+           与ejs大同小异看自己选择
+       -->
+
+   	  <script id="template-tmpl" type="text/template">
+   	  	<ul>
+			{{~it:v:index}}
+			<li>
+				<span class="songName" data-id="{{=v.al.id}}">{{= index +1}}、{{= v.name }}</span>
+				<span class="author">
+					{{~v.ar:value:i}}
+			            <span>{{= value.name }}</span>
+			        {{~}}
+				</span>
+				<span class="author-z">
+			        {{= '《'+v.al.name+'》'}}
+				</span>
+				<span class="play" onclick="player({{=v.id}})" data-id="{{=v.id}}">
+			        点击试听
+				</span>
+			</li>
+			{{~}}
+		</ul>
+      </script>
+
+      <script id="template-page" type="text/template">
+      	{{?(it.totals && it.totals > 1 )}}
+      		<div style="font-size:12px;line-height:20px;">约<span style="color:red;line-height:20px;"> {{=it.totals}} </span>个结果</div>
+      	{{?}}
+      	<div class="pagination">
+	      	{{?(it.pageCount && it.pageCount > 1 )}}
+	      		<span onclick="goNext(0)" class="pagination-list first" data-page="0">首页</span>
+	   			{{for(var i = 0;i < it.pageCount;i++){ }}
+					<span {{? i != it.pageIndex}}onclick="goNext({{= i }})"{{?}} class="pagination-list mid {{? i == it.pageIndex}}current{{?}}" data-page="{{= i }}">{{= i+1 }}</span>
+	   			{{ } }}
+	   			<span onclick="goNext({{=it.pageCount -1 }})" class="pagination-list end" data-page="{{=it.pageCount -1 }}">尾页</span>
+	        {{?}}
+    	</div>
+      </script>
+      <!-- 渲染模板结束 -->
+</body>
+
+<script type="text/javascript">
+		var socket = io();
+		var offset = 0;
+		var keywords = $('.keywords').val();
+		var limit = 20;
+		var data = {
+		        s: keywords,
+		        offset: offset*limit,
+		        limit: limit,
+		        pageIndex:offset,
+		        type: 1
+	    };
+	    var opt = {
+	            path: '/weapi/cloudsearch/get/web',
+	            data: data,
+	            apiType: '1'
+	    };
+
+		$(function () {
+		    $('.ex-search-submit').on('click', debounce(function (e) {
+		    	keywords = $('.keywords').val().trim();
+		    	if(keywords == ''){
+		    		alert('请输入搜索的歌曲名');
+		    		return;
+		    	}else{
+		    		data.s = keywords;
+		    		data.pageIndex = 0;
+		    		data.offset = 0;
+		    	};
+
+			    if (socket) {
+			       loadPage(opt);
+			    };
+			}, 600, true));
+		   	loadPage(opt);
+		    socket.on("songs", function (data) {
+		    	if(data && data.code == 200){
+		    		var template = doT.template($("#template-tmpl").html());
+		    		var templatePage = doT.template($("#template-page").html());
+		    		var pageCount = Math.ceil(data.result.songCount/limit);
+		    		console.log(data);
+		    		if(data.page){
+		    			offset = data.page.pageIndex;
+		    			$('.keywords').val(data.page.keywords);
+		    		}
+		    		$(".ex-search-page").html(templatePage({
+		    			pageCount:data.page ? data.page.pageCount : 0,
+		    			totals:data.result.songCount,
+		    			pageIndex:data.page ? data.page.pageIndex:0
+		    		}));
+		    		$(".ex-search-result").html(template(data.result.songs));
+		    	}
+	       	})
+
+		});
+		function loadPage(opt){
+			//var location = window.location.origin+window.location.pathname+'?p='+offset+'&s='+opt.data.s;
+			//console.log(location);
+			if(socket){
+				if(opt.data.s !=''){
+					socket.emit('https-music-api', {
+				        options: opt,
+				        newsType: 'client-send-api',
+				        isNeedPage:true
+		    		});
+				}
+				
+			}
+	    }
+		function goNext(pageIndex){
+			opt.data.offset = pageIndex*limit;
+			opt.data.pageIndex = pageIndex;
+	    	loadPage(opt);
+	    }
+	    function player(id){
+	    	if(id){
+	    		playUrl(id);
+	    	}
+	    }
+
+	    function playUrl(id){
+	    	pjax({
+	    		url:'/v1/music/url?id='+id
+	    	}).then(function(res){
+	    		//console.log(res)
+	    		if(res && res.data && res.data[0].url && res.data[0].url != null){
+	    			goPlay(res.data[0].url);
+	    		}else{
+	    			alert('付费歌曲无资源');
+	    			console.log('vip付费歌曲无资源.');
+	    			return;
+	    		}
+	    	})
+	    };
+
+	    var sound = new Audio();
+	    function goPlay(mp3){
+	    	console.log('mp3-source',mp3);
+	    	sound.src = mp3;
+	    	sound.play();
+	    }
+
+	    
+</script>
+</html>

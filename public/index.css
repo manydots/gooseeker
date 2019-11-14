@@ -6,36 +6,43 @@
 	text-decoration: none;
 	font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
 }
-pre{
+
+pre {
 	font-size: 13px;
 }
 
 input:-webkit-autofill {
 	box-shadow: 0 0 0px 1000px white inset !important;
 }
+
 .tac {
 	text-align: center;
 }
-.w990{
+
+.w990 {
 	width: 990px;
 	margin: 0 auto;
 	clear: both;
 	overflow: hidden;
 }
+
 .cursor {
 	cursor: pointer;
 }
 
-.fl{
+.fl {
 	float: left;
 }
-.ml15{
+
+.ml15 {
 	margin-left: 15px;
 }
-.mr15{
-	margin-right:15px;
+
+.mr15 {
+	margin-right: 15px;
 }
-.mb10{
+
+.mb10 {
 	margin-bottom: 10px;
 }
 
@@ -45,53 +52,61 @@ input:-webkit-autofill {
 	border-bottom: 1px solid #ececec;
 }
 
-.qrcode-top .qrcode-top-content{
+.qrcode-top .qrcode-top-content {
 	height: 100%;
 	line-height: 50px;
 	color: #666;
 	letter-spacing: 1px;
 }
-.qrcode-top .qrcode-top-content .BackTo{
+
+.qrcode-top .qrcode-top-content .BackTo {
 	display: inline-block;
-	color:pink;
+	color: pink;
 	margin-left: 15px;
 }
-.qrcode-nav{
+
+.qrcode-nav {
 	overflow: hidden;
-	margin:10px auto;
+	margin: 10px auto;
 }
-.qrcode-nav .qrcode-nav-content{
+
+.qrcode-nav .qrcode-nav-content {
 	overflow: hidden;
 	clear: both;
 }
-.qrcode-nav .qrcode-nav-content ul li{
+
+.qrcode-nav .qrcode-nav-content ul li {
 	float: left;
 	font-size: 14px;
 	overflow: hidden;
 }
-.qrcode-nav .qrcode-nav-content ul li a{
-	color:#999;
+
+.qrcode-nav .qrcode-nav-content ul li a {
+	color: #999;
 	display: block;
 	height: 25px;
 	line-height: 25px;
 	padding: 2px 5px;
 	border-bottom: 1px solid #999;
 }
-.qrcode-files-list{
+
+.qrcode-files-list {
 	overflow: hidden;
 	padding: 20px 0 500px 0;
 }
-.qrcode-files-list .qrcode-files-list-cont{
+
+.qrcode-files-list .qrcode-files-list-cont {
 	font-size: 13px;
 	color: #666666;
 	line-height: 20px;
 }
 
-.qrcode-files-list .qrcode-files-list-cont a{
+.qrcode-files-list .qrcode-files-list-cont a {
 	color: red;
 	display: inline-block;
 	line-height: 20px;
 }
+
 .qrcode-container {
 	width: 990px;
 	margin: 0 auto;
@@ -99,22 +114,21 @@ input:-webkit-autofill {
 	overflow: hidden;
 }
 
-
-
 .qrcode-container .qrcode-content {
 	overflow: hidden;
 	margin-top: 20px;
 	border: 1px solid #ececec;
 }
 
-.border-red{
+.border-red {
 	border-color: red !important;
 }
-.qrcode-container .qrcode-created{
-	
+
+.qrcode-container .qrcode-created {
 	margin-top: 20px;
 }
-.qrcode-container .qrcode-created .button{
+
+.qrcode-container .qrcode-created .button {
 	width: 120px;
 	font-size: 15px;
 	padding: 10px 20px;
@@ -131,7 +145,6 @@ input:-webkit-autofill {
 	height: 50px;
 }
 
-
 .qrcode-image-box {
 	height: 300px;
 	width: 300px;
@@ -140,14 +153,16 @@ input:-webkit-autofill {
 	clear: both;
 	position: relative;
 }
-.qrcode-image-box .qrcode-image-wrap{
-	width:100%;
+
+.qrcode-image-box .qrcode-image-wrap {
+	width: 100%;
 	overflow: hidden;
 	height: 100%;
 }
-.qrcode-image-box .qrcode-image-wrap img{
+
+.qrcode-image-box .qrcode-image-wrap img {
 	display: block;
-	width:100%;
+	width: 100%;
 	height: 100%;
 }
 
@@ -161,7 +176,8 @@ input:-webkit-autofill {
 	line-height: 22px;
 	margin-top: -11px;
 }
-.rect{
+
+.rect {
 	background: #fff;
 	position: relative;
 	color: #3D3E49;
@@ -202,7 +218,6 @@ input:-webkit-autofill {
 	}
 
 }
-
 
 .qrcode-footer {
 	overflow: hidden;
@@ -245,60 +260,149 @@ input:-webkit-autofill {
 	border-top: 1px solid rgba(255, 255, 255, .25);
 	padding-top: 15px;
 }
-.qrcode-other{
+
+.qrcode-other {
 	color: #999;
 	margin: 40px auto;
 }
 
-
-.qrcode-uploadImage{
+.qrcode-uploadImage {
 	padding: 150px 0;
 	overflow: hidden;
 }
 
-.qrcode-uploadImage .files-wraper{
-
-	width:100px;
+.qrcode-uploadImage .files-wraper {
+	width: 100px;
 	overflow: hidden;
 	height: 40px;
 	position: relative;
 	background: #fff;
-	border:1px solid #666;
+	border: 1px solid #666;
 	border-radius: 5px;
 	z-index: 5;
 }
 
-.qrcode-uploadImage .files-wraper .uploadImage{
+.qrcode-uploadImage .files-wraper .uploadImage {
 	display: block;
 	visibility: hidden;
-	width:100px;
+	width: 100px;
 	height: 40px;
 	position: absolute;
 	top: 0;
 	left: 0;
 	z-index: 10;
 }
-.qrcode-uploadImage .files-wraper .files-txt{
+
+.qrcode-uploadImage .files-wraper .files-txt {
 	position: relative;
 	z-index: 4;
 	text-align: center;
 	display: block;
-	width:100%;
-	color:#666;
+	width: 100%;
+	color: #666;
 	height: 40px;
 	line-height: 40px;
 }
-.uploads{
 
-	width:100px;
+.uploads {
+	width: 100px;
 	overflow: hidden;
 	height: 40px;
 	position: relative;
 	background: #fff;
-	border:1px solid #666;
+	border: 1px solid #666;
 	border-radius: 5px;
 	z-index: 5;
 	text-align: center;
 	line-height: 40px;
-	color:#666;
+	color: #666;
+}
+
+.ex-music {
+	overflow: hidden;
+	width: 100%;
+	font-size: 14px;
+}
+.ex-search-top{
+	width:432px;
+	overflow: hidden;
+	margin:0 auto;
+	margin-top:40px;
+	margin-bottom:20px;
+	clear: both;
+}
+.ex-keywords-wrapper {
+	border:1px solid #000;
+	overflow: hidden;
+	border-top-left-radius:10px;
+	border-bottom-left-radius:10px;
+}
+.ex-search-top .keywords {
+	border: none;
+	outline: none;
+	width:300px;
+	line-height:30px;
+	height: 30px;
+	overflow: hidden;
+	display: block;
+	padding: 5px 15px;
+}
+.ex-search-submit{
+	line-height:30px;
+	height: 30px;
+	padding: 6px 30px;
+	border-top-right-radius:10px;
+	border-bottom-right-radius:10px;
+	background: #000;
+	cursor: pointer;
+	width:40px;
+	text-align:center;
+	color: #fff;
+}
+.ex-search-page{
+	width:100%;
+	overflow: hidden;
+	padding: 15px 10px;
+}
+.pagination-list{
+	padding: 0 10px;
+	border-radius: 5px;
+	overflow: hidden;
+	display: inline-block;
+	margin: 0;
+    height: 28px;
+    font-size: 12px;
+    line-height: 30px;
+    border-width: 1px;
+    border-style: solid;
+    background-color: #f7f8fa;
+    border-color: #ccc;
+    cursor: pointer;
+}
+.mid.current{
+	border-color: #3089dc;
+    background: #f7f8fa;
+    color: #3089dc;
+    cursor: default;
+}
+.ex-search-result{
+	width:100%;
+	overflow: hidden;
+}
+.ex-search-result ul li{
+	line-height:25px;
+}
+.ex-search-result ul li .songName{
+	color: #333;
+}
+.ex-search-result .play{
+	color: #3089dc;
+	cursor: pointer;
+}
+.ex-search-result .author{
+	color: red;
+}
+
+.ex-search-result .author-z{
+	color: #666;
 }

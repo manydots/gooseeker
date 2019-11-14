@@ -53,6 +53,15 @@ router.get(version, function(request, response) {
 	}
 });
 
+router.get('/music', function(request, response) {
+	//console.log(request.query)
+	response.type('html');
+	response.render('music', {
+		title: '网易云音乐Cloud',
+		keywords:Tools.randomSongs()
+	})
+});
+
 /*
  **
  ** 1、搜索歌曲名
@@ -61,9 +70,11 @@ router.get(version, function(request, response) {
  **
  */
 router.get(version + '/search', function(request, response) {
+	//type:1: 单曲, 10: 专辑, 100: 歌手, 1000: 歌单, 1002: 用户, 1004: MV, 1006: 歌词, 1009: 电台, 1014: 视频
+	//offset : 偏移数量，用于分页 , 如 : 如 :( 页数 -1)*20, 其中20为limit的值,默认为0
 	var data = {
 		s: decodeURI(request.query.s) || '',
-		offset: request.query.offset || '0',
+		offset: request.query.offset || 0,
 		limit: request.query.limit || 20,
 		type: request.query.type || 1
 	};

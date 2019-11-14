@@ -15,12 +15,13 @@ var port = process.env.port || 3000;
 var url = `http://127.0.0.1:${port}`;
 var redisClient = false;
 var ioSocket = null;
-socketServer.initServer(io);
-
 //启动查看redis状态
 redis.initRedis(function(client) {
 	redisClient = client && client != '' && client != null ? true : false;
-})
+	io.redisClient = redisClient;
+});
+
+socketServer.initServer(io);
 
 //static
 app.use('/static', express.static(path.join(__dirname, 'public')));

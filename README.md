@@ -80,8 +80,12 @@
 ### 更新
 ```javascript
  	
- 	socket.io:向首页推送API调用数据
- 	redis:将API调用数据存入redis中
+ 	1、socket.io:向首页推送API调用数据
+ 	2、redis:将API调用数据存入redis中
+ 	3、新增soket.io调用API示例
+ 	4、新增doT.js模板
+ 	5、新增简单分页
+ 	
 
 ```
 
