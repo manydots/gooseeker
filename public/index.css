@@ -363,6 +363,7 @@ input:-webkit-autofill {
 	width:100%;
 	overflow: hidden;
 	padding: 15px 10px;
+	min-height:86px;
 }
 .pagination-list{
 	padding: 0 10px;
@@ -388,6 +389,7 @@ input:-webkit-autofill {
 .ex-search-result{
 	width:100%;
 	overflow: hidden;
+	min-height: 500px;
 }
 .ex-search-result ul li{
 	line-height:25px;
