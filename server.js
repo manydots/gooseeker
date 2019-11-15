@@ -64,7 +64,7 @@ app.use(router);
 
 //Tools.portIsOccupied(port);
 server.listen(port, () => {
-	console.log('Socket Server listening at port %d', port);
-	console.log('Visit http://127.0.0.1:%d', port);
 	console.log('Hello, I\'m %s, how can I help?', serverName);
+	console.log('Socket Server listening at port %d.', port);
+	//console.log('Visit http://127.0.0.1:%d', port);
 });

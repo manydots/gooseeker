@@ -177,8 +177,8 @@ function socketHttp(io, options, callback, errors) {
 			'Cookie': cookie,
 			'User-Agent': userAgent,
 		}
-	}, function(res) {
-		res.on('error', function(err) {
+	}, function(req, res) {
+		req.on('error', function(err) {
 			if (errors) {
 				errors({
 					code: -102,
@@ -187,16 +187,16 @@ function socketHttp(io, options, callback, errors) {
 			}
 			return;
 		});
-		res.setEncoding('utf8');
-		if (res.statusCode != 200) {
+		req.setEncoding('utf8');
+		if (req.statusCode != 200) {
 
 		} else {
-			res.on('data', function(chunk) {
+			req.on('data', function(chunk) {
 				rsp += chunk;
 			});
 
 			//console.log(rsp)
-			res.on('end', function() {
+			req.on('end', function() {
 				if (!rsp || rsp == '' || rsp == null) {
 					socketHttp(io, options, callback, errors);
 					return;
@@ -224,7 +224,6 @@ function socketHttp(io, options, callback, errors) {
 								newsType: "server-prop-for",
 								dataType: 'number'
 							});
-
 							redis.hmSet(count);
 						} else {
 							console.log('---socketHttp数据news推送中---');
@@ -241,10 +240,15 @@ function socketHttp(io, options, callback, errors) {
 
 
 			})
+
+
 		}
+
 	})
+
 	httpClients.write('params=' + cryptoreq.params + '&encSecKey=' + cryptoreq.encSecKey);
 	httpClients.end();
+
 }
 
 function stringToObject(data) {
@@ -450,5 +454,5 @@ module.exports = {
 	getClientIp: getClientIp,
 	formatDate: formatDate,
 	initServer: initServer,
-	randomSongs:randomSongs
+	randomSongs: randomSongs
 }

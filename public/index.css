@@ -408,3 +408,9 @@ input:-webkit-autofill {
 .ex-search-result .author-z{
 	color: #666;
 }
+.canvas{
+	width:990px;
+	height: 240px;
+	overflow: hidden;
+	margin:0 auto;
+}

@@ -25,6 +25,10 @@
 	    	<div class="ex-search-page">
 	    			
 	    	</div>
+	    	<div class="canvas">
+				<canvas id="canvas" ></canvas>
+			</div>
+
     	</div>
     	
   	</div>
@@ -74,11 +78,11 @@
     	</div>
       </script>
       <!-- 渲染模板结束 -->
-
       <%- include('./footer')%>
 </body>
 
 <script type="text/javascript">
+	    $('.canvas').hide();
 		var socket = io();
 		var offset = 0;
 		var keywords = $('.keywords').val();
@@ -177,9 +181,10 @@
 	    function goPlay(mp3){
 	    	console.log('mp3-source',mp3);
 	    	sound.src = mp3;
-	    	sound.play();
+	    	notes(sound);
+	    	$('.canvas').show();
+		    sound.play();
 	    }
 
-	    
 </script>
 </html>
