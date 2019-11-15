@@ -114,7 +114,7 @@ function notes(audio) {
   function renderFrame() {
     var array = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(array);
-    var step = Math.round(array.length / 60);
+    var step = Math.round(array.length / 80);
     ctx.clearRect(0, 0, cwidth, cheight);
     // for (var i = 0; i < meterNum; i++) {
     //     var value = array[i * step];
@@ -133,7 +133,7 @@ function notes(audio) {
     //     ctx.fillRect(i * (meterWidth + gap), cheight - value + capHeight, meterWidth, cheight); //the meter
     // }
 
-    for (var i = 0; i < 40; i++) {
+    for (var i = 0; i < 49; i++) {
       var energy = (array[step * i] / 256.0) * 50;
       for (var j = 0; j < energy; j++) {
         // ctx.beginPath();

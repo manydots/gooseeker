@@ -445,7 +445,7 @@ function initServer(io, callback) {
 }
 
 function randomSongs() {
-	var songs = ['情人知己', '千里之外', '思念是一种病', '大城小爱'];
+	var songs = ['林中鸟'];
 	return songs[parseInt(Math.random() * songs.length)]
 }
 
