@@ -48,7 +48,7 @@ function hgetAll(keys, callback, isTotal) {
 		});
 	}
 }
-var apiLength = 10;
+var apiLength = 14;
 
 function getApiNumber(res) {
 	var totals = 0;

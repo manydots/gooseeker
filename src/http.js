@@ -24,7 +24,10 @@ function WebAPI(options, callback) {
 	let ip = getClientIp(options.request, 'nginx');
 
 	if (options.data) {
-		options.data.csrf_token = '';
+		if (!options.data.csrf_token || options.data.csrf_token == '') {
+			options.data.csrf_token = '';
+		}
+
 	} else {
 		options.data = {};
 		options.data.csrf_token = '';
@@ -81,6 +84,17 @@ function WebAPI(options, callback) {
 					WebAPI(options, callback);
 					return;
 				};
+				if (res.headers['set-cookie']) {
+					//cookie = baseCookie + ';' + res.headers['set-cookie'];
+					var _csrf = getKeys('__csrf', res.headers['set-cookie']);
+					if (_csrf) {
+						response.cookie('__csrf', _csrf.keys, {
+							httpOnly: true
+						})
+					}
+				}
+
+				//response.cookie('__csrf=', 'stone')
 				var count = {
 					apiType: 'count_apiType',
 					apiName: `count_apiType_${options.apiType}`,
@@ -122,16 +136,7 @@ function WebAPI(options, callback) {
 				if (callback) {
 					callback(rsp);
 				} else {
-					if (res.headers['set-cookie']) {
-						cookie = baseCookie + ';' + res.headers['set-cookie'];
-						response.send({
-							code: 200,
-							i: JSON.parse(rsp)
-						});
-						user = JSON.parse(rsp)
-						return;
-					}
-					response.send(rsp)
+					response.send(rsp);
 				}
 
 			})
@@ -320,6 +325,31 @@ function authApi(options, method) {
 		apiType: '10',
 		desc: '推荐歌单',
 		methodOnly: 'post,POST'
+	}, {
+		api: '/weapi/login/cellphone',
+		apiType: '11',
+		desc: '手机登录',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/weapi/login/token/refresh',
+		apiType: '12',
+		desc: '登录信息刷新',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/user/detail',
+		apiType: '13',
+		desc: '用户详情',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/user/playlist',
+		apiType: '14',
+		desc: '用户歌单',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/playlist/detail',
+		apiType: '15',
+		desc: '歌单详情',
+		methodOnly: 'post,POST'
 	}];
 
 	for (let item of apiList) {
@@ -382,6 +412,29 @@ function formatDate(date, fmt) {
 
 }
 
+
+function getKeys(keys, str) {
+	if (typeof str === 'object' && keys != '') {
+		for (let item in str) {
+			if (str[item].indexOf(keys) > -1) {
+				return {
+					keys: getCookieItem(keys, str[item]),
+					Expires: getCookieItem('Expires', str[item]),
+					values: str[item]
+				};
+				break;
+			}
+		}
+	}
+}
+
+function getCookieItem(name, str) {
+	name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+	var regex = new RegExp("[\\;]?" + name + "=([^;]*)"),
+		results = regex.exec(str);
+	return results == null ? "" : decodeURIComponent(results[1]);
+}
+
 function initServer(io, callback) {
 	if (io) {
 		io.on('connection', function(socket) {
@@ -407,7 +460,7 @@ function initServer(io, callback) {
 				//x-real-ip x-forwarded-for 通过nginx后的真实ip
 				//console.log(socket.handshake.headers)
 				//仅[127.0.0.1:3000,music.jeeas.cn]可使用socketHttp方式调用
-				if (socket.handshake.headers.host == '127.0.0.1:3000' || socket.handshake.headers.host == 'music.jeeas.cn') {
+				if (socket.handshake.headers.host == '127.0.0.1:3000' || socket.handshake.headers.host == '127.0.0.1:3033' || socket.handshake.headers.host == 'music.jeeas.cn') {
 					//console.log(data.options)
 					socketHttp(io, data.options, function(res) {
 						//socket.emit给当前连接发送消息

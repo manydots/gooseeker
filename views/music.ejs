@@ -103,6 +103,7 @@
 		$(function () {
 		    $('.ex-search-submit').on('click', debounce(function (e) {
 		    	keywords = $('.keywords').val().trim();
+		    	//console.log(keywords)
 		    	if(keywords == ''){
 		    		alert('请输入搜索的歌曲名');
 		    		return;
@@ -133,6 +134,8 @@
 		    			pageIndex:data.page ? data.page.pageIndex:0
 		    		}));
 		    		$(".ex-search-result").html(template(data.result.songs));
+		    	}else{
+		    		console.log(data)
 		    	}
 	       	})
 

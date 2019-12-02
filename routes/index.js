@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Tools = require('../src/http');
 const redis = require('../src/redis');
+const crypto = require('crypto');
 const version = "/v1";
 
 router.use((req, res, next) => {
 	//console.log(`首页访问ip:${Tools.getClientIp(req,'nginx')}`)
 	//console.log(res.redisClient)
-	//console.log(req.url)
 	next();
 });
 
@@ -58,8 +58,57 @@ router.get('/music', function(request, response) {
 	response.type('html');
 	response.render('music', {
 		title: '网易云音乐Cloud',
-		keywords:Tools.randomSongs()
+		keywords: Tools.randomSongs()
 	})
+});
+
+router.get('/web', function(request, response) {
+	//console.log(request.query)
+	response.type('html');
+	response.render('web', {
+		title: '网易云音乐Cloud',
+		keywords: Tools.randomSongs()
+	})
+});
+
+//手机登录
+router.get(version + '/login/cellphone', function(request, response) {
+	if (!request.query.phone || !request.query.password || request.query.phone == '' || request.query.password == '') {
+		response.send({
+			code: -102,
+			msg: '参数异常检查后重试'
+		});
+		return;
+	} else {
+		var phone = request.query.phone;
+		var data = {
+			'phone': phone,
+			'password': crypto.createHash('md5').update(request.query.password).digest('hex'),
+			'rememberLogin': 'true',
+			'countrycode': request.query.countrycode || '',
+		};
+
+		Tools.WebAPI({
+			path: '/weapi/login/cellphone',
+			request: request,
+			response: response,
+			apiType: '11',
+			data: data
+		});
+	}
+
+});
+
+//登录信息刷新
+router.get(version + '/login/refresh', function(request, response) {
+	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
+	var csrf = cookie.split('=')[1];
+	Tools.WebAPI({
+		path: `/weapi/login/token/refresh?csrf_token=${csrf}`,
+		request: request,
+		response: response,
+		apiType: '12'
+	});
 });
 
 /*
@@ -267,137 +316,88 @@ router.get(version + '/personalized', function(request, response) {
 	});
 })
 
-//以下没改
-//推荐mv
-router.get(version + '/personalized/mv', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {};
-	Tools.WebAPI('/api/personalized/mv', data, cookie, response)
+
+/*
+ **
+ ** 13、用户详情
+ **	params[] 
+ **	/personalized
+ **
+ */
+router.get(version + '/user/detail', function(request, response) {
+	if (!request.query.uid || request.query.uid == '') {
+		response.send({
+			code: -102,
+			msg: '参数异常检查后重试'
+		});
+		return;
+	}
+	Tools.WebAPI({
+		path: `/api/v1/user/detail/${request.query.uid}`,
+		request: request,
+		response: response,
+		apiType: '13'
+	});
 })
 
-//独家放送
-router.get(version + '/personalized/privatecontent', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {};
-	Tools.WebAPI('/api/personalized/privatecontent', data, cookie, response)
+/*
+ **
+ ** 14、用户歌单
+ **	params[] 
+ **	/personalized
+ **
+ */
+router.get(version + '/user/playlist', function(request, response) {
+	if (!request.query.uid || request.query.uid == '') {
+		response.send({
+			code: -102,
+			msg: '参数异常检查后重试'
+		});
+		return;
+	}
+	Tools.WebAPI({
+		path: '/weapi/user/playlist',
+		request: request,
+		response: response,
+		apiType: '14',
+		data: {
+			"offset": request.query.offset || '0',
+			"uid": request.query.uid,
+			"limit": request.query.limit || 20,
+			"csrf_token": ""
+		}
+	});
+})
+
+/*
+ **
+ ** 15、歌单详情
+ **	params[] 
+ **	/personalized
+ **
+ */
+router.get(version + '/playlist/detail', function(request, response) {
+	if (!request.query.id || request.query.id == '') {
+		response.send({
+			code: -102,
+			msg: '参数异常检查后重试'
+		});
+		return;
+	}
+	Tools.WebAPI({
+		path: '/weapi/v3/playlist/detail',
+		request: request,
+		response: response,
+		apiType: '15',
+		data: {
+			"id": request.query.id,
+			"offset": request.query.offset || '0',
+			"total": true,
+			"n": request.query.n || 20,
+			"limit": request.query.limit || 20,
+		}
+	});
 })
 
 
-//推荐dj
-router.get(version + '/personalized/djprogram', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {};
-	Tools.WebAPI('/api/personalized/djprogram', data, cookie, response)
-})
-
-//每日推荐歌曲301
-router.get(version + '/recommend/songs', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		"total": true,
-		"csrf_token": ""
-	};
-	Tools.WebAPI('/weapi/v1/discovery/recommend/songs', data, cookie, response)
-});
-
-//每日推荐歌单301
-router.get(version + '/recommend/resource', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		'offset': 0,
-		'limit': 20,
-		'total': true,
-		"csrf_token": ""
-	};
-	Tools.WebAPI('/weapi/v1/discovery/recommend/resource', data, cookie, response)
-});
-
-
-
-//搜索multimatch
-router.get(version + '/search/multimatch', function(request, response) {
-	var keywords = request.query.s || '';
-	var type = request.query.type || 1;
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		"csrf_token": "",
-		type: type || 1,
-		s: keywords || ''
-	};
-	Tools.WebAPI('/weapi/search/suggest/multimatch', data, cookie, response)
-});
-
-
-//搜索suggest
-router.get(version + '/search/suggest', function(request, response) {
-	var keywords = request.query.keywords || '';
-	var type = request.query.type || 1;
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		"csrf_token": "",
-		type: type || 1,
-		s: keywords || ''
-	};
-	Tools.WebAPI('/weapi/search/suggest/web', data, cookie, response)
-});
-
-
-//fm
-router.get(version + '/fm', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		"csrf_token": ""
-	}
-	Tools.WebAPI('/weapi/v1/radio/get', data, cookie, response)
-});
-
-
-
-//热门歌手 
-router.get(version + '/top/artist', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		'offset': request.query.offset,
-		'total': false,
-		'type': request.query.type,
-		'limit': request.query.limit,
-		'csrf_token': ''
-	}
-	Tools.WebAPI('/weapi/artist/top', data, cookie, response);
-});
-
-//新歌上架 ,type ALL, ZH,EA,KR,JP
-router.get(version + '/top/songs', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		'type': request.query.type,
-		'area': request.query.type,
-		'cat': request.query.type,
-		"csrf_token": ""
-	}
-	Tools.WebAPI('/weapi/v1/discovery/new/songs', data, cookie, response);
-});
-
-//新碟上架 ,type ALL, ZH,EA,KR,JP
-router.get(version + '/top/album', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		'offset': request.query.offset,
-		'total': true,
-		'limit': request.query.limit,
-		'area': request.query.type,
-		"csrf_token": ""
-	}
-	Tools.WebAPI('/weapi/album/new', data, cookie, response);
-});
-
-//simi ,相似歌单，歌曲，关注的用户
-router.get(version + '/simi/song', function(request, response) {
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	var data = {
-		'songid': request.query.id,
-		"csrf_token": ""
-	}
-	Tools.WebAPI('/weapi/v1/discovery/simiSong', data, cookie, response);
-});
 module.exports = router;
