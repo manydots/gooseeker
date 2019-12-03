@@ -44,6 +44,7 @@ function WebAPI(options, callback) {
 	}
 
 	//不使用
+	//console.log(options.request.headers.host)
 	//return new Promise((resolve, reject) => {}}
 	var httpClients = http.request({
 		hostname: 'music.163.com',
@@ -85,11 +86,15 @@ function WebAPI(options, callback) {
 					return;
 				};
 				if (res.headers['set-cookie']) {
-					//cookie = baseCookie + ';' + res.headers['set-cookie'];
 					var _csrf = getKeys('__csrf', res.headers['set-cookie']);
+					//console.log(_csrf)
 					if (_csrf) {
+						//options.request.headers.host
 						response.cookie('__csrf', _csrf.keys, {
-							httpOnly: true
+							httpOnly: true,
+							maxAge: 60 * 60 * 1000,//有效期设置60分钟
+							Expires: _csrf.Expires,
+							domain: '.jeeas.cn'
 						})
 					}
 				}
@@ -326,12 +331,12 @@ function authApi(options, method) {
 		desc: '推荐歌单',
 		methodOnly: 'post,POST'
 	}, {
-		api: '/weapi/login/cellphone',
+		api: '/login/cellphone',
 		apiType: '11',
 		desc: '手机登录',
 		methodOnly: 'post,POST'
 	}, {
-		api: '/weapi/login/token/refresh',
+		api: '/login/refresh',
 		apiType: '12',
 		desc: '登录信息刷新',
 		methodOnly: 'post,POST'
@@ -349,6 +354,11 @@ function authApi(options, method) {
 		api: '/playlist/detail',
 		apiType: '15',
 		desc: '歌单详情',
+		methodOnly: 'post,POST'
+	}, {
+		api: '/user/logout',
+		apiType: '16',
+		desc: '退出登录',
 		methodOnly: 'post,POST'
 	}];
 

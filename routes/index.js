@@ -400,4 +400,20 @@ router.get(version + '/playlist/detail', function(request, response) {
 })
 
 
+/*
+ **
+ ** 16、退出登录
+ **	params[] 
+ **	/personalized
+ **
+ */
+router.get(version + '/user/logout', function(request, response) {
+	Tools.WebAPI({
+		path: '/weapi/logout',
+		request: request,
+		response: response,
+		apiType: '16'
+	});
+})
+
 module.exports = router;

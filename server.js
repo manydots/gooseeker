@@ -47,12 +47,18 @@ app.all('*', (req, res, next) => {
 	res.redisClient = redisClient;
 	res.ioServer = io;
 	res.ioSocket = ioSocket;
-	res.header("Access-Control-Allow-Origin", "*");
+	//console.log(req.headers.cookie)
+	res.header("Access-Control-Allow-Origin", req.headers.origin);
+	res.header('Access-Control-Allow-Credentials', 'true');
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
 	res.header("X-Powered-By", '3.2.1');
 	//res.header("Content-Type", "application/json;charset=utf-8"); //会影响socket
-	next();
+	if (req.method == 'OPTIONS') {
+		res.sendStatus(200);
+	} else {
+		next();
+	}
 });
 
 //使用ejs
