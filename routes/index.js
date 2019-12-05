@@ -7,7 +7,17 @@ const version = "/v1";
 
 router.use((req, res, next) => {
 	//console.log(`首页访问ip:${Tools.getClientIp(req,'nginx')}`)
-	//console.log(res.redisClient)
+	if (req.url != '/' && req.url.startsWith('/v1/')) {
+		if (req.query.from == 'dev') {
+			console.log('request来源:[localhost]');
+		} else if (req.query.from == 'music') {
+			console.log('request来源:[music端]');
+		} else if (req.query.from == 'pro') {
+			console.log('request来源:[electron-web]');
+		} else {
+			console.log('request来源:[personal]');
+		}
+	}
 	next();
 });
 
