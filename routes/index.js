@@ -7,6 +7,7 @@ const version = "/v1";
 
 router.use((req, res, next) => {
 	//console.log(`首页访问ip:${Tools.getClientIp(req,'nginx')}`)
+	//some请求分析...,记录日志上报信息
 	if (req.url != '/' && req.url.startsWith('/v1/')) {
 		if (req.query.from == 'dev') {
 			console.log('request来源:[localhost]');
