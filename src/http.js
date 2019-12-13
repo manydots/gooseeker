@@ -92,7 +92,7 @@ function WebAPI(options, callback) {
 						//options.request.headers.host
 						response.cookie('__csrf', _csrf.keys, {
 							httpOnly: true,
-							maxAge: 60 * 60 * 1000,//有效期设置60分钟
+							maxAge: 60 * 60 * 1000, //有效期设置60分钟
 							Expires: _csrf.Expires,
 							domain: '.jeeas.cn'
 						})
@@ -505,6 +505,34 @@ function initServer(io, callback) {
 		});
 	}
 
+}
+
+function arrayUnique1(array) {
+	if (array && typeof array === 'object') {
+		return array.filter((val, index, arr) => arr.indexOf(val) === index);
+	} else {
+		return [];
+	}
+}
+
+function arrayUnique(arr) {
+	var hash = {},
+		result = [],
+		repeat = [];
+	if (arr && typeof arr === 'object') {
+		for (var i = 0; i < arr.length; i++) {
+			if (!hash[arr[i]]) {
+				hash[arr[i]] = true;
+				result.push(arr[i]);
+			} else {
+				repeat.push(arr[i]);
+			}
+		}
+	};
+	return {
+		result: result,
+		repeat: repeat
+	};
 }
 
 function randomSongs() {
